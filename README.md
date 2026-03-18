@@ -1,4 +1,4 @@
-# NotationJV - Projet Vierge
+# NotationJV
 
 Base de projet full-stack avec:
 - Frontend React (Vite)
