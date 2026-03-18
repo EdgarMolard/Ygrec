@@ -3,6 +3,7 @@ import cors from "cors";
 import express from "express";
 import { Pool } from "pg";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 const app = express();
 const port = Number.parseInt(process.env.PORT ?? "3000", 10);
@@ -68,7 +69,7 @@ app.post("/api/login", async (req, res) => {
     res.json({ message: "Connexion réussie", userId: user.id });
     //on veut renvoyer un token d'authentification dans un header pour qu'ensuite le frontend mémorise 
     // ce token dans le localStorage et le renvoie dans les headers des requêtes suivantes pour prouver
-    //  que l'utilisateur est connecté
+    // que l'utilisateur est connecté
   }
   catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Erreur inconnue lors de la connexion à la base de données";
