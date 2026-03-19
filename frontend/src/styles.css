@@ -149,6 +149,69 @@ h1 {
   box-shadow: 0 16px 32px rgba(15, 23, 42, 0.1);
 }
 
+.home-topbar {
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 0.75rem;
+}
+
+.user-menu {
+  position: relative;
+}
+
+.user-trigger {
+  border: 1px solid #cbd5e1;
+  background: #fff7ed;
+  color: #9a3412;
+  border-radius: 10px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.user-trigger:hover {
+  background: #ffedd5;
+}
+
+.user-dropdown {
+  position: absolute;
+  top: calc(100% + 0.45rem);
+  left: 0;
+  z-index: 10;
+  min-width: 210px;
+  padding: 0.45rem;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.14);
+}
+
+.menu-item {
+  width: 100%;
+  text-align: left;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  padding: 0.55rem 0.6rem;
+  color: #0f172a;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.menu-item:hover:not(:disabled) {
+  background: #f8fafc;
+}
+
+.menu-item:disabled {
+  color: #94a3b8;
+  cursor: not-allowed;
+}
+
+.menu-item-danger {
+  color: #be123c;
+}
+
 .hub-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

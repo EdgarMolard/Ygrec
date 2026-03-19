@@ -69,7 +69,7 @@ app.post("/api/login", async (req, res) => {
     return res.status(400).json({ error: "Champs manquants" });
   }
   try {
-    const result = await pool.query("SELECT id, password FROM utilisateur WHERE pseudo = $1", [username]);
+    const result = await pool.query("SELECT id, pseudo, password FROM utilisateur WHERE pseudo = $1", [username]);
     if (result.rows.length === 0) {
       return res.status(401).json({ error: "Utilisateur non trouvé" });
     }
@@ -91,13 +91,24 @@ app.post("/api/login", async (req, res) => {
       maxAge: 60 * 60 * 1000
     });
 
-    res.status(200).json({ message: "Connexion réussie", userId: user.id });
+    res.status(200).json({ message: "Connexion réussie", userId: user.id, username: user.pseudo });
   }
   catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Erreur inconnue lors de la connexion à la base de données";
     res.status(500).json({ error: "Erreur de base de données", message });
   }
 });
+
+app.post("/api/logout", (_req, res) => {
+  res.clearCookie("auth_token", {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production"
+  });
+
+  res.status(200).json({ message: "Déconnexion réussie" });
+});
+
 app.listen(port, () => {
   console.log(`Backend running on http://localhost:${port}`);
 });
