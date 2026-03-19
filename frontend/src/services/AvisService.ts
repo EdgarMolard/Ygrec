@@ -85,3 +85,47 @@ export async function commentAvis(avisId: string, contenu: string): Promise<{ me
 
   return data;
 }
+
+export interface CreateAvisPayload {
+  titre: string;
+  message: string;
+  stars: number;
+  nom_jeu: string;
+  nombre_heures: number;
+}
+
+export async function createAvis(payload: CreateAvisPayload): Promise<{ message: string; avisId: string }> {
+  // Creation d'un avis protegee par session (cookie JWT inclus).
+  const response = await fetch(`${API_BASE_URL}/create-avis`, {
+    method: "POST",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.error ?? "Erreur lors de la creation de l'avis");
+  }
+
+  return data;
+}
+
+export async function deleteAvis(avisId: string): Promise<{ message: string }> {
+  // Suppression d'un avis autorisee uniquement pour son auteur cote backend.
+  const response = await fetch(`${API_BASE_URL}/avis/${avisId}`, {
+    method: "DELETE",
+    credentials: "include",
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.error ?? "Erreur lors de la suppression de l'avis");
+  }
+
+  return data;
+}

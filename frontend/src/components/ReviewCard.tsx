@@ -1,19 +1,23 @@
 import { useState, FormEvent, ChangeEvent } from "react";
-import { Avis, likeAvis, commentAvis } from "../services/AvisService";
+import { Avis, likeAvis, commentAvis, deleteAvis } from "../services/AvisService";
 import "../styles/ReviewCard.css";
 
 interface ReviewCardProps {
   review: Avis;
   isConnected: boolean;
+  canDelete?: boolean;
   onLikeSuccess?: () => void;
   onCommentSuccess?: () => void;
+  onDeleteSuccess?: () => void;
 }
 
 export default function ReviewCard({
   review,
   isConnected,
+  canDelete = false,
   onLikeSuccess,
   onCommentSuccess,
+  onDeleteSuccess,
 }: ReviewCardProps) {
   // Etats locaux pour refléter immédiatement les actions utilisateur dans l'UI.
   const [likes, setLikes] = useState<number>(review.likes_count);
@@ -21,6 +25,7 @@ export default function ReviewCard({
   const [commentText, setCommentText] = useState<string>("");
   const [isLoadingLike, setIsLoadingLike] = useState<boolean>(false);
   const [isLoadingComment, setIsLoadingComment] = useState<boolean>(false);
+  const [isLoadingDelete, setIsLoadingDelete] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleLike = async () => {
@@ -77,6 +82,30 @@ export default function ReviewCard({
     }
   };
 
+  const handleDelete = async () => {
+    if (!canDelete) {
+      return;
+    }
+
+    const isConfirmed = window.confirm("Confirmer la suppression de cet avis ?");
+    if (!isConfirmed) {
+      return;
+    }
+
+    setIsLoadingDelete(true);
+    setError(null);
+
+    try {
+      await deleteAvis(review.id);
+      onDeleteSuccess?.();
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Erreur lors de la suppression de l'avis";
+      setError(message);
+    } finally {
+      setIsLoadingDelete(false);
+    }
+  };
+
   const renderStars = (stars: number) => {
     // Affiche toujours 5 etoiles, remplies selon la note numerique.
     return Array.from({ length: 5 }, (_, i) => (
@@ -130,6 +159,16 @@ export default function ReviewCard({
         >
           💬 {review.comments.length}
         </button>
+        {canDelete && (
+          <button
+            className="action-btn delete-btn"
+            onClick={handleDelete}
+            disabled={isLoadingDelete}
+            title="Supprimer cet avis"
+          >
+            {isLoadingDelete ? "Suppression..." : "🗑️ Supprimer"}
+          </button>
+        )}
       </div>
 
       {error && <div className="review-error">{error}</div>}

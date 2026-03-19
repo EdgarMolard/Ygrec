@@ -22,11 +22,6 @@ interface AuthRequest extends Request {
   userId?: string;
 }
 
-// Validation simple du format UUID (v1-v5) pour les ids provenant du token et des params.
-const isValidUuid = (value: string): boolean => {
-  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
-};
-
 const verifyAuth = (req: AuthRequest, res: Response, next: NextFunction) => {
   // Le token JWT est lu depuis le cookie httpOnly defini a la connexion.
   const token = req.cookies?.auth_token;
@@ -38,7 +33,7 @@ const verifyAuth = (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     // Si le token est valide, on injecte userId dans la requete pour les routes protegees.
     const decoded = jwt.verify(token, process.env.JWT_SECRET ?? "secret") as JwtPayload;
-    if (typeof decoded.userId !== "string" || !isValidUuid(decoded.userId)) {
+    if (typeof decoded.userId !== "string") {
       return res.status(403).json({ error: "Token invalide ou expiré", message: "userId JWT invalide" });
     }
     req.userId = decoded.userId;
@@ -221,12 +216,8 @@ app.post("/api/avis/:id/like", verifyAuth, async (req: AuthRequest, res) => {
     const userId = req.userId;
     const avisId = req.params.id;
 
-    if (!userId || !isValidUuid(userId)) {
+    if (!userId) {
       return res.status(400).json({ error: "userId invalide" });
-    }
-
-    if (!isValidUuid(avisId)) {
-      return res.status(400).json({ error: "id_avis invalide" });
     }
 
     // Vérifier si le like existe déjà
@@ -264,12 +255,8 @@ app.post("/api/avis/:id/comment", verifyAuth, async (req: AuthRequest, res) => {
     const avisId = req.params.id;
     const { contenu } = req.body;
 
-    if (!userId || !isValidUuid(userId)) {
+    if (!userId) {
       return res.status(400).json({ error: "userId invalide" });
-    }
-
-    if (!isValidUuid(avisId)) {
-      return res.status(400).json({ error: "id_avis invalide" });
     }
 
     if (!contenu || !String(contenu).trim()) {
@@ -287,6 +274,87 @@ app.post("/api/avis/:id/comment", verifyAuth, async (req: AuthRequest, res) => {
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Erreur inconnue";
     res.status(500).json({ error: "Erreur de base de données", message });
+  }
+});
+
+app.post("/api/create-avis", verifyAuth, async (req: AuthRequest, res) => {
+  try {
+    const userId = req.userId;
+    const { titre, message, stars, nom_jeu, nombre_heures } = req.body;
+    if (!userId) {
+      return res.status(400).json({ error: "userId invalide" });
+    }
+    if (!titre || !message || stars === undefined || !nom_jeu || nombre_heures === undefined) {
+      return res.status(400).json({ error: "Champs manquants" });
+    }
+
+    const starsNumber = Number(stars);
+    const hoursNumber = Number(nombre_heures);
+
+    if (!Number.isFinite(starsNumber) || starsNumber < 0 || starsNumber > 5) {
+      return res.status(400).json({ error: "La note doit etre comprise entre 0 et 5" });
+    }
+
+    if (!Number.isInteger(hoursNumber) || hoursNumber < 0) {
+      return res.status(400).json({ error: "Le nombre d'heures doit etre un entier positif" });
+    }
+
+    const result = await pool.query(
+      `INSERT INTO avis (id_avis, id, titre, message, stars, nom_jeu, nombre_heures, date_creation) 
+       VALUES (gen_random_uuid(), $1, $2, $3, $4, $5, $6, NOW()) 
+       RETURNING id_avis as id`,
+      [userId, titre, message, starsNumber, nom_jeu, hoursNumber]
+    );
+    res.status(201).json({ message: "Avis créé", avisId: result.rows[0].id });
+  }
+   catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Erreur inconnue";
+    res.status(500).json({ error: "Erreur de base de données", message });
+  }
+});
+
+app.delete("/api/avis/:id", verifyAuth, async (req: AuthRequest, res) => {
+  const client = await pool.connect();
+
+  try {
+    const userId = req.userId;
+    const avisId = req.params.id;
+
+    if (!userId) {
+      return res.status(400).json({ error: "userId invalide" });
+    }
+
+    await client.query("BEGIN");
+
+    // Verification de propriete: seul l'auteur peut supprimer son avis.
+    const ownerResult = await client.query(
+      "SELECT id FROM avis WHERE id_avis = $1",
+      [avisId]
+    );
+
+    if (ownerResult.rows.length === 0) {
+      await client.query("ROLLBACK");
+      return res.status(404).json({ error: "Avis introuvable" });
+    }
+
+    if (ownerResult.rows[0].id !== userId) {
+      await client.query("ROLLBACK");
+      return res.status(403).json({ error: "Vous ne pouvez supprimer que vos propres avis" });
+    }
+
+    // Suppression des dependances pour respecter les contraintes de cle etrangere.
+    await client.query("DELETE FROM jaime WHERE id_avis = $1", [avisId]);
+    await client.query("DELETE FROM commente WHERE id_avis = $1", [avisId]);
+    await client.query("DELETE FROM avis WHERE id_avis = $1", [avisId]);
+
+    await client.query("COMMIT");
+    res.status(200).json({ message: "Avis supprimé" });
+  } catch (error: unknown) {
+    await client.query("ROLLBACK");
+    const message = error instanceof Error ? error.message : "Erreur inconnue";
+    res.status(500).json({ error: "Erreur de base de données", message });
+  } finally {
+    client.release();
   }
 });
 
