@@ -20,6 +20,8 @@ export default function FeedPage() {
 	const [hasMore, setHasMore] = useState(true);
 	const [error, setError] = useState("");
 	const observerTarget = useRef(null);
+	const isLoadingRef = useRef(false);
+	const loadedPagesRef = useRef(new Set());
 	const [createForm, setCreateForm] = useState({
 		nom_jeu: "",
 		titre: "",
@@ -32,24 +34,37 @@ export default function FeedPage() {
 
 	// Charger les avis
 	const loadMore = useCallback(async () => {
-		if (loading) return;
+		if (isLoadingRef.current) return;
+		if (loadedPagesRef.current.has(page)) return;
+
+		isLoadingRef.current = true;
+		loadedPagesRef.current.add(page);
 		setLoading(true);
 		setError("");
 		try {
 			const response = await fetchAvis(page, 10);
-			setReviews((prev) => [...prev, ...response.data]);
+			setReviews((prev) => {
+				const merged = [...prev, ...response.data];
+				const uniqueById = new Map();
+				merged.forEach((item) => uniqueById.set(item.id, item));
+				return Array.from(uniqueById.values());
+			});
 			setHasMore(page < response.pagination.pages);
 			setPage((prev) => prev + 1);
 		} catch (err) {
+			loadedPagesRef.current.delete(page);
 			// On bloque l'auto-chargement pour eviter une boucle de requetes si l'API est en erreur.
 			setHasMore(false);
 			setError(err instanceof Error ? err.message : "Erreur lors du chargement des avis");
 		} finally {
+			isLoadingRef.current = false;
 			setLoading(false);
 		}
-	}, [page, loading]);
+	}, [page]);
 
 	const reloadReviews = useCallback(async () => {
+		loadedPagesRef.current = new Set();
+		isLoadingRef.current = true;
 		setReviews([]);
 		setPage(1);
 		setHasMore(true);
@@ -58,13 +73,17 @@ export default function FeedPage() {
 
 		try {
 			const response = await fetchAvis(1, 10);
-			setReviews(response.data);
+			const uniqueById = new Map();
+			response.data.forEach((item) => uniqueById.set(item.id, item));
+			setReviews(Array.from(uniqueById.values()));
+			loadedPagesRef.current.add(1);
 			setHasMore(1 < response.pagination.pages);
 			setPage(2);
 		} catch (err) {
 			setHasMore(false);
 			setError(err instanceof Error ? err.message : "Erreur lors du chargement des avis");
 		} finally {
+			isLoadingRef.current = false;
 			setLoading(false);
 		}
 	}, []);

@@ -267,11 +267,19 @@ app.post("/api/avis/:id/comment", verifyAuth, async (req: AuthRequest, res) => {
       `INSERT INTO commente (id, id_avis, id_com, message, date_com) 
        VALUES ($1, $2, gen_random_uuid(), $3, NOW()) 
        RETURNING id as author_id, id_avis, message, date_com as date_creation`,
-      [avisId, userId, contenu]
+      [userId, avisId, contenu]
     );
 
     res.status(201).json({ message: "Commentaire ajouté", comment: result.rows[0] });
   } catch (error: unknown) {
+    // Log detaille pour diagnostiquer les erreurs SQL reelles lors de l'ajout d'un commentaire.
+    console.error("[POST /api/avis/:id/comment] Erreur DB", {
+      avisId: req.params.id,
+      userId: req.userId,
+      body: req.body,
+      error,
+    });
+
     const message = error instanceof Error ? error.message : "Erreur inconnue";
     res.status(500).json({ error: "Erreur de base de données", message });
   }

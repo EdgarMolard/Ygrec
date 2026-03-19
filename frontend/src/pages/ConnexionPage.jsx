@@ -30,6 +30,9 @@ export default function ConnexionPage() {
   return (
     <main className="auth-page">
       <section className="auth-panel">
+        <div className="auth-topbar">
+          <Link className="auth-home-link" to="/feed">Home</Link>
+        </div>
         <p className="kicker">NotationJV</p>
         <h1>Connexion</h1>
         <p className="subtitle">Connecte-toi pour acceder a ton espace.</p>

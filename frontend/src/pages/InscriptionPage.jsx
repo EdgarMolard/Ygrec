@@ -39,6 +39,9 @@ export default function InscriptionPage() {
   return (
     <main className="auth-page">
       <section className="auth-panel">
+        <div className="auth-topbar">
+          <Link className="auth-home-link" to="/feed">Home</Link>
+        </div>
         <p className="kicker">NotationJV</p>
         <h1>Inscription</h1>
         <p className="subtitle">Crée un compte puis accéde à ton espace.</p>
