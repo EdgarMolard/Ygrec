@@ -5,10 +5,14 @@ import { Pool } from "pg";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
+
 const app = express();
 const port = Number.parseInt(process.env.PORT ?? "3000", 10);
 
-app.use(cors({ origin: process.env.CORS_ORIGIN ?? "http://localhost:5173" }));
+app.use(cors({
+  origin: process.env.CORS_ORIGIN ?? "http://localhost:5173",
+  credentials: true
+}));
 app.use(express.json());
 
 const pool = new Pool({
@@ -66,10 +70,20 @@ app.post("/api/login", async (req, res) => {
     if (!isPasswordValid) {
       return res.status(401).json({ error: "Mot de passe incorrect" });
     }
-    res.json({ message: "Connexion réussie", userId: user.id });
-    //on veut renvoyer un token d'authentification dans un header pour qu'ensuite le frontend mémorise 
-    // ce token dans le localStorage et le renvoie dans les headers des requêtes suivantes pour prouver
-    // que l'utilisateur est connecté
+    const token = jwt.sign(
+      { userId: user.id },
+      process.env.JWT_SECRET ?? "secret",
+      { expiresIn: "1h" }
+    );
+
+    res.cookie("auth_token", token, {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 60 * 60 * 1000
+    });
+
+    res.status(200).json({ message: "Connexion réussie", userId: user.id });
   }
   catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Erreur inconnue lors de la connexion à la base de données";
