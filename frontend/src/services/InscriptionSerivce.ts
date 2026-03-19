@@ -12,6 +12,7 @@ type CreateUserPayload = {
 type CreateUserResponse = {
 	message?: string;
 	error?: string;
+	code?: "USERNAME_ALREADY_USED" | "EMAIL_ALREADY_USED";
 };
 
 export function validateInscriptionPassword(password: string, passwordConfirm: string): PasswordValidationResult {
@@ -57,6 +58,16 @@ export async function createUser(payload: CreateUserPayload): Promise<CreateUser
 	const data = (await response.json()) as CreateUserResponse;
 
 	if (!response.ok) {
+		if (response.status === 409) {
+			if (data.code === "USERNAME_ALREADY_USED") {
+				throw new Error("Le nom d'utilisateur est déjà utilisé.");
+			}
+
+			if (data.code === "EMAIL_ALREADY_USED") {
+				throw new Error("L'email est déjà utilisé.");
+			}
+		}
+
 		throw new Error(data.error ?? "Erreur lors de la création du compte.");
 	}
 

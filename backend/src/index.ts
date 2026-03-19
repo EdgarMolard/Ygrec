@@ -46,6 +46,14 @@ app.post("/api/create-user", async (req, res) => {
     return res.status(400).json({ error: "Champs manquants" });
   }
   try {
+    const existingNickname = await pool.query("SELECT id FROM utilisateur WHERE pseudo = $1", [username]);
+    const existingEmail = await pool.query("SELECT id FROM utilisateur WHERE email = $1", [email]);
+    if (existingNickname.rows.length > 0 ) {
+      return res.status(409).json({ error: "Le nom d'utilisateur est déjà utilisé","code": "USERNAME_ALREADY_USED" });
+    }
+    if (existingEmail.rows.length > 0) {
+      return res.status(409).json({ error: "L'email est déjà utilisé","code": "EMAIL_ALREADY_USED"});
+    }
     const hashedPassword = await bcrypt.hash(password, 10);
     const result = await pool.query("INSERT INTO utilisateur (id, pseudo, email, password, is_admin) VALUES (gen_random_uuid(), $1, $2, $3, false) RETURNING id", [username, email, hashedPassword]);
     res.status(201).json({ message: "Utilisateur créé", userId: result.rows[0].id });
