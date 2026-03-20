@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict a49XTImeO3vhTkmC3pSNwo164Jraiiun8oul9LAefpWwFO6fROOCciDYCDsKS7Z
+\restrict BSDvaMlrL4rKb2gbvLib1SaIaHfkgi6RhoW4Ave3G4A4b9GjatpgvTfxSe1HAyf
 
 -- Dumped from database version 16.13
 -- Dumped by pg_dump version 16.13
@@ -147,6 +147,7 @@ INSERT INTO public.utilisateur (id, pseudo, email, password, is_admin) VALUES ('
 INSERT INTO public.utilisateur (id, pseudo, email, password, is_admin) VALUES ('f3f4d193-d839-4d08-bba5-522a26721c81', 'Adnane', 'adnane@gmail.com', '$2b$10$n4r8Y9dyzFpvr2aiyCJlh.7XAH45782ZGF.gKpu7aws7gKxhDPrRC', false);
 INSERT INTO public.utilisateur (id, pseudo, email, password, is_admin) VALUES ('896a961b-861f-4aa9-8d6d-93bba7bd857c', 'Samuel', 'samuel@test.com', '$2b$10$YSW49N7.puh1YA.Ln9I3sebIh3IOUuahScEko2ItQQuJVZrh7kzN2', false);
 INSERT INTO public.utilisateur (id, pseudo, email, password, is_admin) VALUES ('57888409-783f-466f-9545-759e4a38b0f1', 'Hernani', 'hernani@neuil.com', '$2b$10$F8YzpEeanB3DlmmC9HhvF.R1hRRNfk5l39EReGt3x86SS3TvXnVSm', false);
+INSERT INTO public.utilisateur (id, pseudo, email, password, is_admin) VALUES ('e7ce2b9f-1dc1-41b8-aa6c-74781c94b12d', 'Admin', 'admin@admin.fr', '$2b$10$XbHUwizflFLAyUyHscL3LuTgWLnG2jxKW2v0QNSgEQjeSzfzBLfjq', true);
 
 
 --
@@ -225,5 +226,5 @@ ALTER TABLE ONLY public.jaime
 -- PostgreSQL database dump complete
 --
 
-\unrestrict a49XTImeO3vhTkmC3pSNwo164Jraiiun8oul9LAefpWwFO6fROOCciDYCDsKS7Z
+\unrestrict BSDvaMlrL4rKb2gbvLib1SaIaHfkgi6RhoW4Ave3G4A4b9GjatpgvTfxSe1HAyf
 
