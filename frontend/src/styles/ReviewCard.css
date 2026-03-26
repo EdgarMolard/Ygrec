@@ -139,6 +139,18 @@
   border-color: #fb923c;
 }
 
+.like-btn.liked {
+  background: #fee2e2;
+  border-color: #fca5a5;
+  color: #b91c1c;
+}
+
+.like-btn.liked:hover:not(:disabled) {
+  background: #fecaca;
+  border-color: #f87171;
+  color: #991b1b;
+}
+
 .comment-btn {
   border-color: #fdba74;
   color: #9a3412;

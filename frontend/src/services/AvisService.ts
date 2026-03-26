@@ -19,6 +19,7 @@ export interface Avis {
   author: string;
   author_id: string;
   likes_count: number;
+  liked_by_current_user?: boolean;
   comments: Comment[];
 }
 

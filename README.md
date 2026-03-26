@@ -29,13 +29,14 @@ npm --prefix frontend install
 cp .env.example .env
 ```
 
-Générer une clé pour le JWT_SECRET dans le .env
+IMPORTANT : Prendre en compte qu'une utilisation d'une clé autre que celle par défaut implique
+une nécessité de recrée des comptes et l'impossibilité de se connecter au anciens comptes.
+
+Générer une clé pour le JWT_SECRET dans le .env 
 ```bash
 node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
 ```
 
-IMPORTANT : Prendre en compte qu'une utilisation d'une clé autre que celle par défaut implique
-une nécessité de recrée des comptes et l'impossibilité de se connecter au anciens comptes.
 
 ## Lancer la base PostgreSQL (Docker)
 

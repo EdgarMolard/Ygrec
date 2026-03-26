@@ -1,4 +1,4 @@
-import { useState, FormEvent, ChangeEvent } from "react";
+import { useState, useEffect, FormEvent, ChangeEvent } from "react";
 import { Avis, likeAvis, commentAvis, deleteAvis, deleteCommentAvis } from "../services/AvisService";
 import "../styles/ReviewCard.css";
 
@@ -25,6 +25,7 @@ export default function ReviewCard({
 }: ReviewCardProps) {
   // Etats locaux pour refléter immédiatement les actions utilisateur dans l'UI.
   const [likes, setLikes] = useState<number>(review.likes_count);
+  const [isLiked, setIsLiked] = useState<boolean>(Boolean(review.liked_by_current_user));
   const [showCommentForm, setShowCommentForm] = useState<boolean>(false);
   const [commentText, setCommentText] = useState<string>("");
   const [isLoadingLike, setIsLoadingLike] = useState<boolean>(false);
@@ -32,6 +33,14 @@ export default function ReviewCard({
   const [isLoadingDelete, setIsLoadingDelete] = useState<boolean>(false);
   const [deletingCommentId, setDeletingCommentId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setLikes(review.likes_count);
+  }, [review.likes_count]);
+
+  useEffect(() => {
+    setIsLiked(Boolean(review.liked_by_current_user));
+  }, [review.liked_by_current_user]);
 
   const handleLike = async () => {
     // Garde: un like est autorisé uniquement si l'utilisateur est connecté.
@@ -44,9 +53,10 @@ export default function ReviewCard({
     setError(null);
 
     try {
-      await likeAvis(review.id);
-      // Mise a jour fonctionnelle pour eviter les valeurs obsoletes en asynchrone.
-      setLikes((prev: number) => prev + 1);
+      const result = await likeAvis(review.id);
+      // L'API est un toggle: on incremente si like ajoute, sinon on retire un like.
+      setIsLiked(result.liked);
+      setLikes((prev: number) => (result.liked ? prev + 1 : Math.max(prev - 1, 0)));
       onLikeSuccess?.();
     } catch (err) {
       const message = err instanceof Error ? err.message : "Erreur lors de l'ajout du like";
@@ -175,9 +185,10 @@ export default function ReviewCard({
 
       <div className="review-actions">
         <button
-          className="action-btn like-btn"
+          className={`action-btn like-btn ${isLiked ? "liked" : ""}`.trim()}
           onClick={handleLike}
           disabled={isLoadingLike || !isConnected}
+          aria-pressed={isLiked}
           title={!isConnected ? "Connectez-vous pour aimer" : "Aimer cet avis"}
         >
           ❤️ {likes}
