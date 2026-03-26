@@ -4,7 +4,7 @@ Base de projet full-stack avec:
 - Frontend React (Vite)
 - Backend Express (TypeScript)
 - Base de donnees PostgreSQL
-- Docker Compose uniquement pour la base de donnees
+- Docker Compose pour frontend + backend + base de donnees
 
 ## Prerequis
 
@@ -38,11 +38,18 @@ node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
 ```
 
 
-## Lancer la base PostgreSQL (Docker)
+## Lancer tout le projet en Docker
+
+Commande recommandee:
 
 ```bash
-npm run db:up
+npm run docker:up
 ```
+
+Services exposes:
+- frontend: http://localhost:5173
+- backend: http://localhost:3000
+- postgres: localhost:5432
 
 Au premier lancement (volume vide), PostgreSQL importe automatiquement le dump SQL versionne dans:
 
@@ -50,7 +57,31 @@ Au premier lancement (volume vide), PostgreSQL importe automatiquement le dump S
 database/init/001_init.sql
 ```
 
-Cela permet d'avoir des donnees de demo directement apres le premier build du projet.
+Arret complet de la stack:
+
+```bash
+npm run docker:down
+```
+
+Voir les logs des conteneurs:
+
+```bash
+npm run docker:logs
+```
+
+Reinitialiser completement (supprime le volume DB puis rebuild/restart):
+
+```bash
+npm run docker:reset
+```
+
+## Lancer uniquement la base PostgreSQL (Docker)
+
+```bash
+npm run db:up
+```
+
+Cela permet de lancer uniquement la base si tu veux demarrer frontend/backend hors Docker.
 
 Arret de la base:
 
@@ -64,7 +95,7 @@ Reinitialiser la base (supprime le volume Docker puis reimporte le dump):
 npm run db:reset
 ```
 
-## Lancer le frontend + backend en local
+## Lancer le frontend + backend en local (hors Docker)
 
 Commande unique:
 
@@ -72,7 +103,7 @@ Commande unique:
 npm run dev
 ```
 
-Cette commande lance:
+Cette commande lance en local:
 - backend sur http://localhost:3000
 - frontend sur http://localhost:5173
 
