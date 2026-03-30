@@ -9,6 +9,11 @@ yarn-error.log*
 # Build outputs
 dist/
 coverage/
+.tsbuild/
+*.tsbuildinfo
+
+# Generated from TypeScript tooling config builds
+frontend/vite.config.d.ts
 
 # Environment
 .env

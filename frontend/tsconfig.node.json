@@ -4,6 +4,8 @@
     "skipLibCheck": true,
     "module": "ESNext",
     "moduleResolution": "bundler",
+    "allowJs": true,
+    "outDir": "./.tsbuild/node",
     "allowSyntheticDefaultImports": true
   },
   // Scope this config to tooling files (Vite config), not app source code.
