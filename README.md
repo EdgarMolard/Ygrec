@@ -30,7 +30,8 @@ cd ..
 2. Copier les variables d'environnement:
 
 ```bash
-cp .env.example .env
+linux : cp .env.example .env
+winodws : copy .env.example .env
 ```
 
 IMPORTANT : Prendre en compte qu'une utilisation d'une clé autre que celle par défaut implique
