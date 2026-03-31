@@ -18,9 +18,12 @@ Base de projet full-stack avec:
 1. Installer les dependances a la racine et dans les deux apps:
 
 ```bash
-npm install
-npm --prefix backend install
-npm --prefix frontend install
+npm i
+cd backend
+npm i
+cd ..
+cd frontend
+npm i
 ```
 
 2. Copier les variables d'environnement:
