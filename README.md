@@ -24,6 +24,7 @@ npm i
 cd ..
 cd frontend
 npm i
+cd ..
 ```
 
 2. Copier les variables d'environnement:
