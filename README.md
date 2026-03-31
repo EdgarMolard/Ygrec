@@ -31,7 +31,7 @@ cd ..
 
 ```bash
 linux : cp .env.example .env
-winodws : copy .env.example .env
+windows : copy .env.example .env
 ```
 
 IMPORTANT : Prendre en compte qu'une utilisation d'une clé autre que celle par défaut implique
