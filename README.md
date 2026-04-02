@@ -13,39 +13,17 @@ Base de projet full-stack avec:
 - Docker
 - Docker Compose
 
-## Installation
+## Lancer tout le projet en Docker
 
-1. Installer les dependances a la racine et dans les deux apps:
 
-```bash
-npm i
-cd backend
-npm i
-cd ..
-cd frontend
-npm i
-cd ..
-```
-
-2. Copier les variables d'environnement:
+1. Copier les variables d'environnement:
 
 ```bash
 linux : cp .env.example .env
 windows : copy .env.example .env
 ```
 
-IMPORTANT : Prendre en compte qu'une utilisation d'une clé autre que celle par défaut implique
-une nécessité de recrée des comptes et l'impossibilité de se connecter au anciens comptes.
-
-Générer une clé pour le JWT_SECRET dans le .env 
-```bash
-node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
-```
-
-
-## Lancer tout le projet en Docker
-
-Commande recommandee:
+2. Lancer les conteneurs docker:
 
 ```bash
 npm run docker:up
@@ -55,6 +33,8 @@ Services exposes:
 - frontend: http://localhost:5173
 - backend: http://localhost:3000
 - postgres: localhost:5432
+
+
 
 Au premier lancement (volume vide), PostgreSQL importe automatiquement le dump SQL versionne dans:
 
@@ -74,26 +54,6 @@ Voir les logs des conteneurs:
 npm run docker:logs
 ```
 
-Reinitialiser completement (supprime le volume DB puis rebuild/restart):
-
-```bash
-npm run docker:reset
-```
-
-## Lancer uniquement la base PostgreSQL (Docker)
-
-```bash
-npm run db:up
-```
-
-Cela permet de lancer uniquement la base si tu veux demarrer frontend/backend hors Docker.
-
-Arret de la base:
-
-```bash
-npm run db:down
-```
-
 Reinitialiser la base (supprime le volume Docker puis reimporte le dump):
 
 ```bash
@@ -101,6 +61,27 @@ npm run db:reset
 ```
 
 ## Lancer le frontend + backend en local (hors Docker)
+
+1. Installer les dependances a la racine et dans les deux apps:
+
+```bash
+npm i
+cd backend
+npm i
+cd ..
+cd frontend
+npm i
+cd ..
+```
+
+IMPORTANT : Prendre en compte qu'une utilisation d'une clé autre que celle par défaut implique
+une nécessité de recrée des comptes et l'impossibilité de se connecter au anciens comptes.
+
+Générer une clé pour le JWT_SECRET dans le .env 
+```bash
+node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
+```
+
 
 Commande unique:
 
